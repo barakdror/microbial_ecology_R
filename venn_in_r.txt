@@ -1,0 +1,32 @@
+#Create a Venn Diagram with R
+#Required package: VennDiagram
+
+#first go to Venny in order to get the required numbers per group/between groups
+#here there are two examples, one for Wheat and Cucumber genes (pariwise) and the other for Wheat,
+#Cucumber and Tomato (triple venn)
+#create a new plot page:
+grid.newpage()
+#for metagenomes:
+#apply this function only after you're happy with your diagram, in order to save it as .tiff file:
+tiff("venn_mg_nrpks.tiff", height = 7, width = 9, units = 'cm', compression = "lzw", res = 500)
+
+#the area 1 is the number for one circle, the area2 for the second circle, and the cross.area is the 
+#shared number between samples. Category is the circle names, and the others are just colors and shapes.
+draw.pairwise.venn(area1 = 1089, area2 = 1182, cross.area = 681, cat.dist = rep(0.2,1),
+                 category = c("Wheat", "Cucumber"), lty = "solid", col = "black", fill = c("green4", "gold"), scaled=FALSE, fontface = "plain", cat.fontface = "bold",cat.col = c("goldenrod4", "forestgreen"),alpha=rep(0.5,2), cat.cex = 1.5,1.5)
+#the dev.off is important for the creation of the figure, and to 'empty' the plot area for new one:
+dev.off()
+
+#for triple, do the same with Venny, and then insert relevant numbers:
+draw.triple.venn(area1 = 99, area2 = 280, area3 = 192, n12 = 42, n23 = 115, n13 = 12, 
+                 n123 = 9, category = c("tomato", "wheat", "cucumber"), lty = "solid", col = "black", 
+                 fill = c("#FF0000", "yellow", "forestgreen"), fontface = "plain", cat.fontface = "bold")
+tiff("venn_mtmg_maya.tiff", height = 8, width = 12, units = 'cm', compression = "lzw", res = 500)
+dev.off()
+
+#You can even make quad diagram, using the same concept"
+draw.quad.venn(area1 = 2909, area2 = 248, area3 = 3355, area4=149, n12 = 248, n13 = 1637, n14 = 80, 
+               n23 = 125, n24=36,n34=149, n123=125,n124=36, n134=80, n234=36, n1234=36,category = c("wheatMG", "wheatMT", "cucumberMG", "cucumberMT"), lty = "solid", col = "black", 
+               fill = c("#FFFF00", "#CCCC00", "#228B22", "#00FF00"),cat.col = c("#FFFF00", "#CCCC00", "#228B22", "#00FF00"), fontface = "bold", cat.fontface = "bold", print.mode = "percent")
+
+dev.off()
