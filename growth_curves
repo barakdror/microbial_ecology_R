@@ -1,0 +1,46 @@
+#this code is for use of the package growthcurver
+#Growthcurver calculates simple metrics to summarize growth curves.
+#Growth curves are commonly used in a variety of microbial experiments, including experimental evolution.
+#The data are typically obtained by repeatedly measuring the cell density.
+#Modern microbial growth curves can be conducted in a plate reader and may result in hundreds of absorbance measurements over the course of 24 hours.
+#for more info on the package and its uses, please go to https://cran.r-project.org/web/packages/growthcurver/vignettes/Growthcurver-vignette.html
+#read your table (notich it should be in a specific format, as listed in the link above- first column is time , and then
+#each column is a well):
+growth_table=read.csv("C:/Users/barakd/Desktop/judith_growth.csv", header = TRUE)
+#first option is to fit only specific well, where $time is the time column and $B6 is the well:
+gc_fit=SummarizeGrowth(growth_table$time, growth_table$B6)
+# It is easy to get the most useful metrics from a gcfit object, just type:
+gc_fit
+# And it is easy to plot the raw data and the best fit logistic curve
+plot(gc_fit)
+# To see all the available metrics 
+str(gc_fit$vals)
+#go the manual in the link above to understand the meaning of each variable in the results!
+#whole plate fitting:
+#we can also fit models for entire plates with this command (which also generates a plot in a pdf file)
+gc_out=SummarizeGrowthByPlate(growth_table, plot_fit = TRUE, plot_file = "gc_plots.pdf")
+#see the results on the screen:
+gc_out$note
+#and to get the results-save the entire data table to a tab-separated file that can be imported into Excel:
+output_file_name="the/path/to/my/data/myfilename.txt"
+write.table(gc_out, file = output_file_name, 
+            quote = FALSE, sep = "\t", row.names = FALSE)
+
+#see if the package produces any outlier notes (poor fitting):
+gc_out$note
+#if it's blank or ""- it's good, it means the model fits that data
+
+#another method to check for clustering/outliers is to perform PCA:
+# Load dplyr
+library(dplyr)
+pca_gc_out <- as_data_frame(gc_out) 
+pca.res <- prcomp(pca_gc_out %>% select(k:sigma), center=TRUE, scale=TRUE)
+# Plot the results
+as_data_frame(list(PC1=pca.res$x[,1],
+                   PC2=pca.res$x[,2],
+                   samples = rownames(pca.res$x))) %>% 
+  ggplot(aes(x=PC1,y=PC2, label=samples)) + 
+  geom_text(size = 3)
+
+#next think to do willbe to compare the variables you want to compare using ANOVA (means)
+#for instance
