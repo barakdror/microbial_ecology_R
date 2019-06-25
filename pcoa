@@ -1,0 +1,27 @@
+#how to perform PCA analysis
+#tomato NRPS- soil vs. rhizosphere:
+#Install and upload RAM libray
+#read the biome table (columns are samples, rows are OTUs/ESVs)
+nrps_tomato = read.table("C:/Users/barakd/Desktop/lachish/rhiz_associated_genomes_analysis/table_tomato_nrps_biom.txt", header = T, sep="\t", row.names = 1, check.names = F, quote="") 
+#check that everything is ok:
+dim(nrps_tomato)
+head(nrps_tomato)
+#count the number of zeros in the table:
+sum(nrps_tomato==0)
+#filter (set your 10 according to your data!)
+count=10 #this is the chosen cutoff
+nrps_tomato.1 <- data.frame(nrps_tomato[which(apply(nrps_tomato, 1, function(x){mean(x)}) > count),], 
+                            check.names=F)
+dim(nrps_tomato.1)
+#add taxonomy one (if you already have one from qiime, you don't need it)
+nrps_tomato.1["taxonomy"]=NA
+#give names (R is bad a reading column names) according to your samples)
+colnames(nrps_tomato.1)=c("RL1", "RL2", "RL3", "RM1", "RM2", "RM3", "SL1", "SL2", "SL3", "SM1","SM2","SM3", "taxonomy")
+#read metadata
+metadata= read.table("C:/Users/barakd/Desktop/lachish/rhiz_associated_genomes_analysis/metadata_tomato.txt", header = T, sep="\t", row.names = 1) 
+#and plot! look at the command to see more visual options:
+tiff("nrps_jaccard.tiff", height = 9, width = 12, units = 'cm', compression = "lzw", res = 600)
+pcoa.plot(nrps_tomato.1, is.OTU = TRUE,meta=metadata, factors=c(source="source", type="type"), rank=NULL, 
+          stand.method = "log",dist.method = "bray", ggplot2 = FALSE, 
+          sample.labels = TRUE, top=0, main = "NRPS Tomato-Jaccard")
+dev.off()
