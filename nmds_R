@@ -5,7 +5,7 @@ OTU=read.table("seq_table_final10tn_NO73.txt", header=TRUE)
 
 #now we transpose the table (meaning we replace the rows/columns)
 OTUtrans=t(OTU)
-#the tiff command will create a .tiff of the figure (apply it only after you see the figure in the R plot window and happy with it)
+#the tiff command will create a .tiff figure (apply it only after you see the figure itself in the R plot window and happy with it)
 tiff("rarefaction_no_labes.tiff", height = 15, width = 20, units = 'cm', compression = "lzw", res = 500)
 rarecurve(OTUtrans, step=100, xlab="Number of sequences", ylab="OTUs", label=F, font=4)
 dev.off()
