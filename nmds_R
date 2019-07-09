@@ -1,0 +1,39 @@
+#install and load the vegan library
+
+#Read the OTU table 
+OTU=read.table("seq_table_final10tn_NO73.txt", header=TRUE)
+
+#now we transpose the table (meaning we replace the rows/columns)
+OTUtrans=t(OTU)
+#the tiff command will create a .tiff of the figure (apply it only after you see the figure in the R plot window and happy with it)
+tiff("rarefaction_no_labes.tiff", height = 15, width = 20, units = 'cm', compression = "lzw", res = 500)
+rarecurve(OTUtrans, step=100, xlab="Number of sequences", ylab="OTUs", label=F, font=4)
+dev.off()
+
+#now read the metadata file, where each row is a sample with your variables (source, date, soil type, plant type etc.)
+OTUmetadata=read.table("metadata2_NO73.txt", header=TRUE, row.names=1)
+
+#Standardization of the OTU table:
+transformedOTU=decostand(OTUtrans, "hell")
+#calculate distances between samples (notice you can change the 'bary' argument, look at the Help for more options):
+disDNA=vegdist(transformedOTU, method="bray")
+#NMDS scaling:
+nMDSDNA=monoMDS(disDNA, model = "global")
+
+nMDSscoresDNA<-scores(nMDSDNA)
+with(OTUmetadata, levels(shapeSoilHabitat))
+
+shapeR=c("Control"=8, "Brachypodium-soil"=15, "Brachypodium-rhizosphere"=17, "Brachypodium-root"=19, "Arabidopsis-rhizosphere"=24, "Arabidopsis-soil"=22, "Arabidopsis-root"=21)
+colR=c("T1"="#66c2a5", "T2"="#fc8d62", "T3"="#8da0cb", "T4"="#e78ac3", "T5"="#a6d854", "T6"="#ffd92f", "T7"="#e5c494")
+
+
+ordination_score<-as.data.frame(nMDSscoresDNA)
+mergedscores= merge(ordination_score, OTUmetadata, by=0)
+head(mergedscores)
+#the grand finale- the final NMDS plot:
+tiff("nmdsALL_final.tiff", height = 15, width = 22, units = 'cm', compression = "lzw", res = 800)
+#install and load ggplot2
+#the color and shape arguments corresponde to the values from the metadata you defined above- change it to wheatver you need!
+ggplot(mergedscores, aes(x=MDS1, y=MDS2, color=Treatment, shape=shapeSoilHabitat, font=8)) + geom_point(size=3)+ theme_bw()+ scale_shape_manual(values=shapeR)+ scale_color_manual(values=colR)+ labs(color="Treatment", shape="Plant and niche")
+#do not forget to run dev.off- otherwise you will not get the figure!
+dev.off()
