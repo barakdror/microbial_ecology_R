@@ -1,0 +1,33 @@
+#this code creates lovely heatmaps, with additional annotations if possible.
+#first, read your matrix table (meaning the table with what you want to plot inside the heamtap)
+#notice you need it to be matrix, so avoid unneccsary columns with strings:
+matrix=read.csv("C:/Users/Barak/OneDrive/documents/דוקטורט/papers/Dror 2019_exp/metagenomes_sets_results_clones/heatmap_results.csv", row.names = 1)
+#you can 'eliminate' a column by assigning NULL to it, and it won't be read by R:
+matrix$subtype=NULL
+#view your matrix to see it's ok:
+View(matrix)
+#now read your annotation file, where the first column MUST match the first column of the matrix (that's make sense right?)
+annot=read.csv("C:/Users/Barak/OneDrive/documents/דוקטורט/papers/Dror 2019_exp/metagenomes_sets_results_clones/annotation.csv", row.names = 1)
+View(annot)
+#install pheatmap package, and them upload it:
+library("pheatmap")
+#now notice the command:
+#color- the colors of the matrix (e.g. red/green for 1 and 0)
+#cluster- whether to cluster by rows or coulmns, or not at all
+#gaps- if you want to devide the heatmap to 'boxes' just give it the row/column number gaps
+#file name- the name of your heatmap with the required format- png, jpeg, jpg. etc.
+#annotation row- the annotation dataframe you uploaded above
+#annotation colors- specific colors for the annotation. If you won't specficy this argument, it will assign colors automatically
+pheatmap(Metadata, color = c("red2", "green"),
+         cluster_rows = FALSE, 
+         cluster_cols = FALSE,
+         cellwidth = 17,
+         gaps_row = c(20,41,58),
+         fontsize_row = 4,
+         fontsize_col = 10,
+         fontsize = 10,
+         filename = "clones_mg.jpeg",
+         annotation_row = annot,
+         annotation_colors = list(Environment=c("Gut"="purple","Aquatic"="royalblue3","Soil"="saddlebrown", "Root-associated"="forestgreen")),
+         show_rownames = F, legend = F)
+dev.off()
