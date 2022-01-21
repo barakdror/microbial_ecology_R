@@ -1,0 +1,71 @@
+#R version- 4.1.2.
+#Maaslin2-v1.8.0
+#DESeq2-v.1.34.0
+#using this code, we will use two different approaches to determine the differential abundance of different entities, e.g. ESV, family or wheatever
+#represented by a count table (for instance a biom table). First, we will use Maaslin2, and then we will use Deseq2. You SHOULD run each, and then choose only those
+#hits that were common to both methods (adjusted pvalue<0.05). 
+#You can copy this whole page to RStudio and run the code
+
+#Let's start with Maaslin2:
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("Maaslin2")
+library("Maaslin2")
+library("ggplot2")
+#First, read the biom table using RAW counts (we will normalize it later via the Maaslin2 command):
+input=read.csv("C:/Users/barak/desktop/16S/biochar/maaslin2/raw-family.csv", row.names = 1)
+#and also give a mestdata file, where each row is sample with the different annotations (source, environment, treatment, etc.)
+metadata=read.csv("C:/Users/barak/desktop/16S/biochar/maaslin2/metadata.csv", row.names = 1)
+
+#transpose:
+input=t(input)
+#view the files to make sure everything looks ok:
+View(input)
+View(metadata)
+
+#Now the fun begins. Pay close attention to the different normalization and transofmration methods, read the paper!
+#the output will be saved to the path you inputted under the 'output' argument:
+mas_1 <- Maaslin2(
+  input_data =input,
+  input_metadata =metadata ,
+  output ="PATH/Maaslin_results" ,
+  min_abundance = 0.0,
+  min_prevalence = 0.0,
+  normalization = "TSS",
+  transform = "NONE",
+  analysis_method = "LM",
+  max_significance = 0.05,
+  fixed_effects = "amendment",
+  correction = "BH",
+  standardize = FALSE,
+  cores = 1)
+  
+#now, Deseq2:
+BiocManager::install("DESeq2")
+library("DESeq2")
+#in some cases, if you have a lot of zeros in your data, you may need to add 1 pseudocount:
+install.packages("tidyverse", dependencies = TRUE)
+library("tidyverse"
+input=input %>% mutate_at(vars(-"#OTU ID"),~.+1)
+View(input)
+rownames(input)=input$X.OTU.ID
+input$X.OTU.ID=NULL
+input=input[!duplicated(input),]
+View(input)
+#DESeq2 use the dds object and the following command to store the read counts and the intermediate estimated quantities during statistical analysis:
+dds <- DESeqDataSetFromMatrix(countData=input, 
+                              colData=metadata, 
+                              design=~amendment, tidy = TRUE)
+dds=DESeq(dds)
+#look at the results:
+res <- results(dds)
+res <- res[order(res$log2FoldChange),]
+summary(res) #summary of results
+#filter by pvalue<0.05
+sum(res$padj < 0.05 & res$log2FoldChange<0, na.rm=TRUE)
+#you can insert specific groups to 'gene=' to look at specific differences, for instance only for chloroflexi:
+plotCounts(dds, gene="k__Bacteria;p__Chloroflexi;c__Chloroflexi", intgroup="amendment")
+#save the results:
+write.csv(res,file="deseq2_results.csv")
