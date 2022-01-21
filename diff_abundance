@@ -7,7 +7,6 @@
 #You can copy this whole page to RStudio and run the code
 
 #Let's start with Maaslin2:
-#Test
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
