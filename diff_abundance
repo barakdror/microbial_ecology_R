@@ -1,13 +1,13 @@
 #R version- 4.1.2.
 #Maaslin2-v1.8.0
 #DESeq2-v.1.34.0
-#using this code, we will use two different approaches to determine the differential abundance of different entities, e.g. ESV, family or wheatever
-#represented by a count table (for instance a biom table). First, we will use Maaslin2, and then we will use Deseq2. You SHOULD run each, and then choose only those
+#using this code, we will use two different approaches to determine the differential #abundance of different entities, e.g. ESV, family or wheatever
+#represented by a count table (for instance a biom table). First, we will use Maaslin2, and #then we will use Deseq2. You SHOULD run each, and then choose only those
 #hits that were common to both methods (adjusted pvalue<0.05). 
 #You can copy this whole page to RStudio and run the code
 
 #Let's start with Maaslin2:
-
+#Test
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
